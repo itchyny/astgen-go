@@ -22,6 +22,8 @@ func Build(x interface{}) ast.Node {
 		return &ast.Ident{Name: "false"}
 	case reflect.Int:
 		return &ast.BasicLit{Kind: token.INT, Value: fmt.Sprint(v.Int())}
+	case reflect.Float64:
+		return &ast.BasicLit{Kind: token.FLOAT, Value: fmt.Sprint(v.Float())}
 	case reflect.String:
 		return &ast.BasicLit{Kind: token.STRING, Value: strconv.Quote(v.String())}
 	default:

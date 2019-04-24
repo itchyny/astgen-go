@@ -14,6 +14,11 @@ func Build(x interface{}) ast.Node {
 	}
 	v := reflect.ValueOf(x)
 	switch v.Kind() {
+	case reflect.Bool:
+		if v.Bool() {
+			return &ast.Ident{Name: "true"}
+		}
+		return &ast.Ident{Name: "false"}
 	case reflect.String:
 		return &ast.BasicLit{Kind: token.STRING, Value: strconv.Quote(v.String())}
 	default:

@@ -134,9 +134,29 @@ var testCases = []struct {
 		expected: `[1][1][1]int{[1][1]int{[1]int{1}}}`,
 	},
 	{
+		name:     "slice of int",
+		src:      []int{1, 2, 3, 4, 5},
+		expected: `[]int{1, 2, 3, 4, 5}`,
+	},
+	{
+		name:     "slice of array of int",
+		src:      [][2]int{[2]int{1, 2}, [2]int{3, 4}},
+		expected: `[][2]int{[2]int{1, 2}, [2]int{3, 4}}`,
+	},
+	{
+		name:     "slice of map",
+		src:      []map[int]string{map[int]string{1: "a"}, map[int]string{2: "b"}},
+		expected: `[]map[int]string{map[int]string{1: "a"}, map[int]string{2: "b"}}`,
+	},
+	{
 		name:     "map of int from string",
 		src:      map[string]int{"a": 1},
 		expected: `map[string]int{"a": 1}`,
+	},
+	{
+		name:     "map of slice of string from int",
+		src:      map[int][]string{128: []string{"Hello", "world!"}},
+		expected: `map[int][]string{128: []string{"Hello", "world!"}}`,
 	},
 }
 

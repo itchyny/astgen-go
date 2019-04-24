@@ -50,6 +50,12 @@ func buildType(t reflect.Type) (ast.Expr, error) {
 			Len: &ast.BasicLit{Kind: token.INT, Value: fmt.Sprint(t.Len())},
 			Elt: elem,
 		}, nil
+	case reflect.Slice:
+		elem, err := buildType(t.Elem())
+		if err != nil {
+			return nil, err
+		}
+		return &ast.ArrayType{Elt: elem}, nil
 	case reflect.Map:
 		k, err := buildType(t.Key())
 		if err != nil {

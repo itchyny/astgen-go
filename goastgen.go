@@ -54,7 +54,7 @@ func build(v reflect.Value) (ast.Node, error) {
 		return callExpr(token.FLOAT, "complex128", fmt.Sprint(v.Complex())), nil
 	case reflect.String:
 		return &ast.BasicLit{Kind: token.STRING, Value: strconv.Quote(v.String())}, nil
-	case reflect.Array:
+	case reflect.Array, reflect.Slice:
 		exprs := make([]ast.Expr, v.Len())
 		for i := 0; i < v.Len(); i++ {
 			v, err := buildExpr(v.Index(i))

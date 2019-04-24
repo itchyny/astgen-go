@@ -92,6 +92,16 @@ var testCases = []struct {
 		expected: `3.14156`,
 	},
 	{
+		name:     "complex64",
+		src:      complex64(1 - 2i),
+		expected: `complex64((1-2i))`,
+	},
+	{
+		name:     "complex128",
+		src:      -3.14156 + 2.71828i,
+		expected: `complex128((-3.14156+2.71828i))`,
+	},
+	{
 		name:     "string",
 		src:      "Hello, world!",
 		expected: `"Hello, world!"`,

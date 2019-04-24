@@ -44,6 +44,10 @@ func Build(x interface{}) ast.Node {
 		return callExpr(token.FLOAT, "float32", fmt.Sprint(v.Float()))
 	case reflect.Float64:
 		return &ast.BasicLit{Kind: token.FLOAT, Value: fmt.Sprint(v.Float())}
+	case reflect.Complex64:
+		return callExpr(token.FLOAT, "complex64", fmt.Sprint(v.Complex()))
+	case reflect.Complex128:
+		return callExpr(token.FLOAT, "complex128", fmt.Sprint(v.Complex()))
 	case reflect.String:
 		return &ast.BasicLit{Kind: token.STRING, Value: strconv.Quote(v.String())}
 	default:

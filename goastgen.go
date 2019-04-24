@@ -14,6 +14,10 @@ func Build(x interface{}) (ast.Node, error) {
 		return &ast.Ident{Name: "nil"}, nil
 	}
 	v := reflect.ValueOf(x)
+	return build(v)
+}
+
+func build(v reflect.Value) (ast.Node, error) {
 	switch v.Kind() {
 	case reflect.Bool:
 		if v.Bool() {
@@ -50,6 +54,26 @@ func Build(x interface{}) (ast.Node, error) {
 		return callExpr(token.FLOAT, "complex128", fmt.Sprint(v.Complex())), nil
 	case reflect.String:
 		return &ast.BasicLit{Kind: token.STRING, Value: strconv.Quote(v.String())}, nil
+	case reflect.Array:
+		exprs := make([]ast.Expr, v.Len())
+		for i := 0; i < v.Len(); i++ {
+			v, err := build(v.Index(i))
+			if err != nil {
+				return nil, err
+			}
+			w, ok := v.(ast.Expr)
+			if !ok {
+				return nil, fmt.Errorf("expected ast.Expr but got: %T", v)
+			}
+			exprs[i] = w
+		}
+		return &ast.CompositeLit{
+			Type: &ast.ArrayType{
+				Len: &ast.BasicLit{Kind: token.INT, Value: fmt.Sprint(v.Len())},
+				Elt: &ast.Ident{Name: v.Type().Elem().Name()},
+			},
+			Elts: exprs,
+		}, nil
 	default:
 		return nil, unexpectedTypeError(v)
 	}

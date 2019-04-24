@@ -113,6 +113,16 @@ var testCases = []struct {
 					☆ミ`,
 		expected: `"こんにちは\n\t\t\t\t\t世界\n\t\t\t\t\t☆ミ"`,
 	},
+	{
+		name:     "int array",
+		src:      [3]int{-128, 0, 128},
+		expected: `[3]int{-128, 0, 128}`,
+	},
+	{
+		name:     "string array",
+		src:      [2]string{"Hello", "world!"},
+		expected: `[2]string{"Hello", "world!"}`,
+	},
 }
 
 func TestBuild(t *testing.T) {

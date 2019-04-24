@@ -20,6 +20,18 @@ var testCases = []struct {
 		src:      nil,
 		expected: `nil`,
 	},
+	{
+		name:     "string",
+		src:      "Hello, world!",
+		expected: `"Hello, world!"`,
+	},
+	{
+		name: "string with new lines",
+		src: `こんにちは
+					世界
+					☆ミ`,
+		expected: `"こんにちは\n\t\t\t\t\t世界\n\t\t\t\t\t☆ミ"`,
+	},
 }
 
 func TestBuild(t *testing.T) {

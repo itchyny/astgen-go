@@ -123,6 +123,16 @@ var testCases = []struct {
 		src:      [2]string{"Hello", "world!"},
 		expected: `[2]string{"Hello", "world!"}`,
 	},
+	{
+		name:     "array of array",
+		src:      [2][1]int{[1]int{0}, [1]int{1}},
+		expected: `[2][1]int{[1]int{0}, [1]int{1}}`,
+	},
+	{
+		name:     "array of array of array",
+		src:      [1][1][1]int{[1][1]int{[1]int{1}}},
+		expected: `[1][1][1]int{[1][1]int{[1]int{1}}}`,
+	},
 }
 
 func TestBuild(t *testing.T) {

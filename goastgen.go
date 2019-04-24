@@ -67,22 +67,20 @@ func build(v reflect.Value) (ast.Node, error) {
 			}
 			exprs[i] = w
 		}
-		return &ast.CompositeLit{
-			Type: &ast.ArrayType{
-				Len: &ast.BasicLit{Kind: token.INT, Value: fmt.Sprint(v.Len())},
-				Elt: &ast.Ident{Name: v.Type().Elem().Name()},
-			},
-			Elts: exprs,
-		}, nil
+		t, err := buildType(v.Type())
+		if err != nil {
+			return nil, err
+		}
+		return &ast.CompositeLit{Type: t, Elts: exprs}, nil
 	default:
-		return nil, unexpectedTypeError(v)
+		return nil, &unexpectedTypeError{v.Type()}
 	}
 }
 
-type unexpectedTypeError reflect.Value
+type unexpectedTypeError struct{ t reflect.Type }
 
-func (err unexpectedTypeError) Error() string {
-	return fmt.Sprintf("unexpected type: %s", reflect.Value(err).Kind())
+func (err *unexpectedTypeError) Error() string {
+	return fmt.Sprintf("unexpected type: %s", err.t.Kind())
 }
 
 func callExpr(kind token.Token, name, value string) *ast.CallExpr {

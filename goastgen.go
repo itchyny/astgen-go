@@ -1,6 +1,7 @@
 package goastgen
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
 	"reflect"
@@ -19,6 +20,8 @@ func Build(x interface{}) ast.Node {
 			return &ast.Ident{Name: "true"}
 		}
 		return &ast.Ident{Name: "false"}
+	case reflect.Int:
+		return &ast.BasicLit{Kind: token.INT, Value: fmt.Sprint(v.Int())}
 	case reflect.String:
 		return &ast.BasicLit{Kind: token.STRING, Value: strconv.Quote(v.String())}
 	default:

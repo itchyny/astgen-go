@@ -31,6 +31,11 @@ var testCases = []struct {
 		expected: `false`,
 	},
 	{
+		name:     "int",
+		src:      16777216,
+		expected: `16777216`,
+	},
+	{
 		name:     "string",
 		src:      "Hello, world!",
 		expected: `"Hello, world!"`,

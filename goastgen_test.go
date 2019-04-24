@@ -57,6 +57,31 @@ var testCases = []struct {
 		expected: `int64(9223372036854775807)`,
 	},
 	{
+		name:     "uint",
+		src:      uint(0xffffffffffffffff),
+		expected: `uint(18446744073709551615)`,
+	},
+	{
+		name:     "uint8",
+		src:      uint8(math.MaxUint8),
+		expected: `uint8(255)`,
+	},
+	{
+		name:     "uint16",
+		src:      uint16(math.MaxUint16),
+		expected: `uint16(65535)`,
+	},
+	{
+		name:     "uint32",
+		src:      uint32(math.MaxUint32),
+		expected: `uint32(4294967295)`,
+	},
+	{
+		name:     "uint64",
+		src:      uint64(math.MaxUint64),
+		expected: `uint64(18446744073709551615)`,
+	},
+	{
 		name:     "float32",
 		src:      float32(3.125),
 		expected: `float32(3.125)`,

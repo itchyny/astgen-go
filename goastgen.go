@@ -30,6 +30,16 @@ func Build(x interface{}) ast.Node {
 		return callExpr(token.INT, "int32", fmt.Sprint(v.Int()))
 	case reflect.Int64:
 		return callExpr(token.INT, "int64", fmt.Sprint(v.Int()))
+	case reflect.Uint:
+		return callExpr(token.INT, "uint", fmt.Sprint(v.Uint()))
+	case reflect.Uint8:
+		return callExpr(token.INT, "uint8", fmt.Sprint(v.Uint()))
+	case reflect.Uint16:
+		return callExpr(token.INT, "uint16", fmt.Sprint(v.Uint()))
+	case reflect.Uint32:
+		return callExpr(token.INT, "uint32", fmt.Sprint(v.Uint()))
+	case reflect.Uint64:
+		return callExpr(token.INT, "uint64", fmt.Sprint(v.Uint()))
 	case reflect.Float32:
 		return callExpr(token.FLOAT, "float32", fmt.Sprint(v.Float()))
 	case reflect.Float64:

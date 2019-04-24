@@ -133,6 +133,11 @@ var testCases = []struct {
 		src:      [1][1][1]int{[1][1]int{[1]int{1}}},
 		expected: `[1][1][1]int{[1][1]int{[1]int{1}}}`,
 	},
+	{
+		name:     "map of int from string",
+		src:      map[string]int{"a": 1},
+		expected: `map[string]int{"a": 1}`,
+	},
 }
 
 func TestBuild(t *testing.T) {

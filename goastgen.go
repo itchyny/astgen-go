@@ -57,15 +57,32 @@ func build(v reflect.Value) (ast.Node, error) {
 	case reflect.Array:
 		exprs := make([]ast.Expr, v.Len())
 		for i := 0; i < v.Len(); i++ {
-			v, err := build(v.Index(i))
+			v, err := buildExpr(v.Index(i))
 			if err != nil {
 				return nil, err
 			}
-			w, ok := v.(ast.Expr)
-			if !ok {
-				return nil, fmt.Errorf("expected ast.Expr but got: %T", v)
+			exprs[i] = v
+		}
+		t, err := buildType(v.Type())
+		if err != nil {
+			return nil, err
+		}
+		return &ast.CompositeLit{Type: t, Elts: exprs}, nil
+	case reflect.Map:
+		exprs := make([]ast.Expr, v.Len())
+		iter := v.MapRange()
+		var i int
+		for iter.Next() {
+			k, err := buildExpr(iter.Key())
+			if err != nil {
+				return nil, err
 			}
-			exprs[i] = w
+			v, err := buildExpr(iter.Value())
+			if err != nil {
+				return nil, err
+			}
+			exprs[i] = &ast.KeyValueExpr{Key: k, Value: v}
+			i++
 		}
 		t, err := buildType(v.Type())
 		if err != nil {
@@ -90,4 +107,16 @@ func callExpr(kind token.Token, name, value string) *ast.CallExpr {
 			&ast.BasicLit{Kind: kind, Value: value},
 		},
 	}
+}
+
+func buildExpr(v reflect.Value) (ast.Expr, error) {
+	w, err := build(v)
+	if err != nil {
+		return nil, err
+	}
+	e, ok := w.(ast.Expr)
+	if !ok {
+		return nil, fmt.Errorf("expected ast.Expr but got: %T", w)
+	}
+	return e, nil
 }

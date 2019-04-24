@@ -118,7 +118,8 @@ var testCases = []struct {
 func TestBuild(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := Build(tc.src)
+			got, err := Build(tc.src)
+			assert.NoError(t, err)
 			buf := new(bytes.Buffer)
 			printer.Fprint(buf, token.NewFileSet(), got)
 			assert.Equal(t, tc.expected, buf.String())

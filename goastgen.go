@@ -22,6 +22,14 @@ func Build(x interface{}) ast.Node {
 		return &ast.Ident{Name: "false"}
 	case reflect.Int:
 		return &ast.BasicLit{Kind: token.INT, Value: fmt.Sprint(v.Int())}
+	case reflect.Int8:
+		return callExpr(token.INT, "int8", fmt.Sprint(v.Int()))
+	case reflect.Int16:
+		return callExpr(token.INT, "int16", fmt.Sprint(v.Int()))
+	case reflect.Int32:
+		return callExpr(token.INT, "int32", fmt.Sprint(v.Int()))
+	case reflect.Int64:
+		return callExpr(token.INT, "int64", fmt.Sprint(v.Int()))
 	case reflect.Float32:
 		return callExpr(token.FLOAT, "float32", fmt.Sprint(v.Float()))
 	case reflect.Float64:

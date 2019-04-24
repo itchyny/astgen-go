@@ -5,6 +5,7 @@ import (
 	"go/parser"
 	"go/printer"
 	"go/token"
+	"math"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -34,6 +35,26 @@ var testCases = []struct {
 		name:     "int",
 		src:      16777216,
 		expected: `16777216`,
+	},
+	{
+		name:     "int8",
+		src:      int8(math.MinInt8),
+		expected: `int8(-128)`,
+	},
+	{
+		name:     "int16",
+		src:      int16(math.MaxInt16),
+		expected: `int16(32767)`,
+	},
+	{
+		name:     "int32",
+		src:      int32(math.MinInt32),
+		expected: `int32(-2147483648)`,
+	},
+	{
+		name:     "int64",
+		src:      int64(math.MaxInt64),
+		expected: `int64(9223372036854775807)`,
 	},
 	{
 		name:     "float32",

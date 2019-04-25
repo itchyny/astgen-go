@@ -144,6 +144,17 @@ var testCases = []struct {
 		expected: `[][2]int{[2]int{1, 2}, [2]int{3, 4}}`,
 	},
 	{
+		name: "slice of interface",
+		src:  []interface{}{1, "a", nil, false, true},
+		expected: `[]interface {
+}{interface {
+}(1), interface {
+}("a"), interface {
+}(nil), interface {
+}(false), interface {
+}(true)}`,
+	},
+	{
 		name:     "slice of map",
 		src:      []map[int]string{map[int]string{1: "a"}, map[int]string{2: "b"}},
 		expected: `[]map[int]string{map[int]string{1: "a"}, map[int]string{2: "b"}}`,
@@ -157,6 +168,13 @@ var testCases = []struct {
 		name:     "map of slice of string from int",
 		src:      map[int][]string{128: []string{"Hello", "world!"}},
 		expected: `map[int][]string{128: []string{"Hello", "world!"}}`,
+	},
+	{
+		name: "map of interface from string",
+		src:  map[string]interface{}{"abcde": 128},
+		expected: `map[string]interface {
+}{"abcde": interface {
+}(128)}`,
 	},
 }
 

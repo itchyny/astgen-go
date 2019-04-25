@@ -41,6 +41,8 @@ func buildType(t reflect.Type) (ast.Expr, error) {
 		return &ast.Ident{Name: "complex128"}, nil
 	case reflect.String:
 		return &ast.Ident{Name: "string"}, nil
+	case reflect.Interface:
+		return &ast.InterfaceType{Methods: &ast.FieldList{}}, nil
 	case reflect.Array:
 		elem, err := buildType(t.Elem())
 		if err != nil {

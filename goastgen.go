@@ -10,15 +10,13 @@ import (
 
 // Build ast from interface{}.
 func Build(x interface{}) (ast.Node, error) {
-	if x == nil {
-		return &ast.Ident{Name: "nil"}, nil
-	}
-	v := reflect.ValueOf(x)
-	return build(v)
+	return build(reflect.ValueOf(x))
 }
 
 func build(v reflect.Value) (ast.Node, error) {
 	switch v.Kind() {
+	case reflect.Invalid:
+		return &ast.Ident{Name: "nil"}, nil
 	case reflect.Bool:
 		if v.Bool() {
 			return &ast.Ident{Name: "true"}, nil
@@ -54,14 +52,24 @@ func build(v reflect.Value) (ast.Node, error) {
 		return callExpr(token.FLOAT, "complex128", fmt.Sprint(v.Complex())), nil
 	case reflect.String:
 		return &ast.BasicLit{Kind: token.STRING, Value: strconv.Quote(v.String())}, nil
+	case reflect.Interface:
+		e, err := buildExpr(v.Elem())
+		if err != nil {
+			return nil, err
+		}
+		t, err := buildType(v.Type())
+		if err != nil {
+			return nil, err
+		}
+		return &ast.CallExpr{Fun: t, Args: []ast.Expr{e}}, nil
 	case reflect.Array, reflect.Slice:
 		exprs := make([]ast.Expr, v.Len())
 		for i := 0; i < v.Len(); i++ {
-			v, err := buildExpr(v.Index(i))
+			w, err := buildExpr(v.Index(i))
 			if err != nil {
 				return nil, err
 			}
-			exprs[i] = v
+			exprs[i] = w
 		}
 		t, err := buildType(v.Type())
 		if err != nil {

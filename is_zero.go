@@ -1,4 +1,4 @@
-package goastgen
+package astgen
 
 import "reflect"
 

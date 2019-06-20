@@ -1,4 +1,4 @@
-module github.com/itchyny/goastgen
+module github.com/itchyny/astgen-go
 
 go 1.12
 

@@ -115,6 +115,12 @@ func build(v reflect.Value) (ast.Node, error) {
 			return nil, err
 		}
 		return &ast.CompositeLit{Type: t, Elts: exprs}, nil
+	case reflect.Ptr:
+		v, err := buildExpr(v.Elem())
+		if err != nil {
+			return nil, err
+		}
+		return &ast.UnaryExpr{Op: token.AND, X: v}, nil
 	default:
 		return nil, &unexpectedTypeError{v.Type()}
 	}

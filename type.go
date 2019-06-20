@@ -91,6 +91,12 @@ func buildType(t reflect.Type) (ast.Expr, error) {
 			prevType = t
 		}
 		return &ast.StructType{Fields: &ast.FieldList{List: fs}}, nil
+	case reflect.Ptr:
+		t, err := buildType(t.Elem())
+		if err != nil {
+			return nil, err
+		}
+		return &ast.StarExpr{X: t}, nil
 	default:
 		return nil, &unexpectedTypeError{t}
 	}

@@ -201,6 +201,27 @@ var testCases = []struct {
 }{1: interface {
 }(128)}}`,
 	},
+	{
+		name:     "struct pointer",
+		src:      &x{name: "foo"},
+		expected: `&x{name: "foo"}`,
+	},
+	{
+		name: "nameless struct pointer",
+		src: &struct {
+			name string
+			ptr  *int
+		}{name: "foo"},
+		expected: `&struct {
+	name	string
+	ptr	*int
+}{name: "foo"}`,
+	},
+}
+
+type x struct {
+	name string
+	ptr  *int
 }
 
 func TestBuild(t *testing.T) {

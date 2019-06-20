@@ -68,6 +68,29 @@ func buildType(t reflect.Type) (ast.Expr, error) {
 			return nil, err
 		}
 		return &ast.MapType{Key: k, Value: v}, nil
+	case reflect.Struct:
+		if t.Name() != "" {
+			return &ast.Ident{Name: t.Name()}, nil
+		}
+		fs := make([]*ast.Field, 0, t.NumField())
+		var prevType ast.Expr
+		for i := 0; i < t.NumField(); i++ {
+			sf := t.Field(i)
+			t, err := buildType(sf.Type)
+			if err != nil {
+				return nil, err
+			}
+			if reflect.DeepEqual(prevType, t) {
+				fs[len(fs)-1].Names = append(fs[len(fs)-1].Names, &ast.Ident{Name: sf.Name})
+				continue
+			}
+			fs = append(fs, &ast.Field{
+				Names: []*ast.Ident{&ast.Ident{Name: sf.Name}},
+				Type:  t,
+			})
+			prevType = t
+		}
+		return &ast.StructType{Fields: &ast.FieldList{List: fs}}, nil
 	default:
 		return nil, &unexpectedTypeError{t}
 	}

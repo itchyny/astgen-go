@@ -97,6 +97,24 @@ func build(v reflect.Value) (ast.Node, error) {
 			return nil, err
 		}
 		return &ast.CompositeLit{Type: t, Elts: exprs}, nil
+	case reflect.Struct:
+		exprs := make([]ast.Expr, 0, v.NumField())
+		for i := 0; i < v.NumField(); i++ {
+			if isZero(v.Field(i)) {
+				continue
+			}
+			k := &ast.Ident{Name: v.Type().Field(i).Name}
+			v, err := buildExpr(v.Field(i))
+			if err != nil {
+				return nil, err
+			}
+			exprs = append(exprs, &ast.KeyValueExpr{Key: k, Value: v})
+		}
+		t, err := buildType(v.Type())
+		if err != nil {
+			return nil, err
+		}
+		return &ast.CompositeLit{Type: t, Elts: exprs}, nil
 	default:
 		return nil, &unexpectedTypeError{v.Type()}
 	}

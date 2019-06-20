@@ -176,6 +176,31 @@ var testCases = []struct {
 }{"abcde": interface {
 }(128)}`,
 	},
+	{
+		name: "empty struct",
+		src:  struct{}{},
+		expected: `struct {
+}{}`,
+	},
+	{
+		name: "struct",
+		src: struct {
+			foo, bar int
+			baz, qux string
+			s        []interface{}
+			m        map[int]interface{}
+		}{foo: 1, baz: "bar", m: map[int]interface{}{1: 128}},
+		expected: `struct {
+	foo, bar	int
+	baz, qux	string
+	s		[]interface {
+	}
+	m	map[int]interface {
+	}
+}{foo: 1, baz: "bar", m: map[int]interface {
+}{1: interface {
+}(128)}}`,
+	},
 }
 
 func TestBuild(t *testing.T) {

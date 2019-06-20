@@ -219,12 +219,28 @@ var testCases = []struct {
 	ptr2	*int	` + "`" + `x:"t,omitempty"` + "`" + `
 }{name: "foo"}`,
 	},
+	{
+		name: "non struct type",
+		src: struct {
+			x x
+			y y
+			z z
+		}{y: 1, z: "foo"},
+		expected: `struct {
+	x	x
+	y	y
+	z	z
+}{y: 1, z: "foo"}`,
+	},
 }
 
 type x struct {
 	name string
 	ptr  *int
 }
+
+type y int
+type z string
 
 func TestBuild(t *testing.T) {
 	for _, tc := range testCases {

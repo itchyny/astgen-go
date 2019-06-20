@@ -116,11 +116,51 @@ func build(v reflect.Value) (ast.Node, error) {
 		}
 		return &ast.CompositeLit{Type: t, Elts: exprs}, nil
 	case reflect.Ptr:
-		v, err := buildExpr(v.Elem())
+		w, err := buildExpr(v.Elem())
 		if err != nil {
 			return nil, err
 		}
-		return &ast.UnaryExpr{Op: token.AND, X: v}, nil
+		if x, ok := w.(*ast.BasicLit); ok {
+			t, err := buildType(v.Elem().Type())
+			if err != nil {
+				return nil, err
+			}
+			return &ast.CallExpr{
+				Fun: &ast.ParenExpr{
+					X: &ast.FuncLit{
+						Type: &ast.FuncType{
+							Params: &ast.FieldList{
+								List: []*ast.Field{
+									&ast.Field{
+										Names: []*ast.Ident{&ast.Ident{Name: "x"}},
+										Type:  t,
+									},
+								},
+							},
+							Results: &ast.FieldList{
+								List: []*ast.Field{
+									&ast.Field{Type: &ast.StarExpr{X: t}},
+								},
+							},
+						},
+						Body: &ast.BlockStmt{
+							List: []ast.Stmt{
+								&ast.ReturnStmt{
+									Results: []ast.Expr{
+										&ast.UnaryExpr{
+											Op: token.AND,
+											X:  &ast.Ident{Name: "x"},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				Args: []ast.Expr{x},
+			}, nil
+		}
+		return &ast.UnaryExpr{Op: token.AND, X: w}, nil
 	default:
 		return nil, &unexpectedTypeError{v.Type()}
 	}

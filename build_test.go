@@ -224,13 +224,15 @@ var testCases = []struct {
 		src: struct {
 			x x
 			y y
-			z z
-		}{y: 1, z: "foo"},
+			z *z
+		}{y: 1, z: (func(s z) *z { return &s })("foo")},
 		expected: `struct {
 	x	x
 	y	y
-	z	z
-}{y: 1, z: "foo"}`,
+	z	*z
+}{y: 1, z: (func(x z) *z {
+	return &x
+})("foo")}`,
 	},
 }
 

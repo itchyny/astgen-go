@@ -210,11 +210,13 @@ var testCases = []struct {
 		name: "nameless struct pointer",
 		src: &struct {
 			name string
-			ptr  *int
+			ptr1 *int
+			ptr2 *int `x:"t,omitempty"`
 		}{name: "foo"},
 		expected: `&struct {
 	name	string
-	ptr	*int
+	ptr1	*int
+	ptr2	*int	` + "`" + `x:"t,omitempty"` + "`" + `
 }{name: "foo"}`,
 	},
 }

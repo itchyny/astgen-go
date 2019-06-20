@@ -74,21 +74,27 @@ func buildType(t reflect.Type) (ast.Expr, error) {
 		}
 		fs := make([]*ast.Field, 0, t.NumField())
 		var prevType ast.Expr
+		var prevTag reflect.StructTag
 		for i := 0; i < t.NumField(); i++ {
 			sf := t.Field(i)
 			t, err := buildType(sf.Type)
 			if err != nil {
 				return nil, err
 			}
-			if reflect.DeepEqual(prevType, t) {
+			if reflect.DeepEqual(prevType, t) && prevTag == sf.Tag {
 				fs[len(fs)-1].Names = append(fs[len(fs)-1].Names, &ast.Ident{Name: sf.Name})
 				continue
+			}
+			var tag *ast.BasicLit
+			if sf.Tag != "" {
+				tag = &ast.BasicLit{Value: "`" + string(sf.Tag) + "`"}
 			}
 			fs = append(fs, &ast.Field{
 				Names: []*ast.Ident{&ast.Ident{Name: sf.Name}},
 				Type:  t,
+				Tag:   tag,
 			})
-			prevType = t
+			prevType, prevTag = t, sf.Tag
 		}
 		return &ast.StructType{Fields: &ast.FieldList{List: fs}}, nil
 	case reflect.Ptr:

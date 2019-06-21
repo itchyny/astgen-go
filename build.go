@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"sort"
 	"strconv"
+	"strings"
 )
 
 // Build ast from interface{}.
@@ -54,6 +55,12 @@ func build(v reflect.Value) (ast.Node, error) {
 	case reflect.Complex128:
 		return callExpr(token.FLOAT, "complex128", fmt.Sprint(v.Complex())), nil
 	case reflect.String:
+		if strings.ContainsRune(v.String(), '"') && !strings.ContainsRune(v.String(), '`') {
+			s := strings.Replace(v.String(), `"`, "", -1)
+			if len(strconv.Quote(s)) == len(s)+2 { // check no escape characters
+				return &ast.BasicLit{Kind: token.STRING, Value: "`" + v.String() + "`"}, nil
+			}
+		}
 		return &ast.BasicLit{Kind: token.STRING, Value: strconv.Quote(v.String())}, nil
 	case reflect.Interface:
 		e, err := buildExpr(v.Elem())

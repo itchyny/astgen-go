@@ -114,6 +114,11 @@ var testCases = []struct {
 		expected: `"こんにちは\n\t\t\t\t\t世界\n\t\t\t\t\t☆ミ"`,
 	},
 	{
+		name:     "string containing double quote",
+		src:      `"hello", "こんにちは"`,
+		expected: "`\"hello\", \"こんにちは\"`",
+	},
+	{
 		name:     "int array",
 		src:      [3]int{-128, 0, 128},
 		expected: `[3]int{-128, 0, 128}`,

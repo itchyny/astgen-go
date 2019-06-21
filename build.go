@@ -236,24 +236,41 @@ func (b *builder) buildExpr(v reflect.Value) (ast.Expr, error) {
 	return e, nil
 }
 
-func (b *builder) getVarName(t, v ast.Expr) string {
+func (b *builder) getVarName(v reflect.Value, t, e ast.Expr) string {
 	for _, bv := range b.vars {
-		if reflect.DeepEqual(t, bv.typ) && reflect.DeepEqual(v, bv.expr) {
+		if reflect.DeepEqual(t, bv.typ) && reflect.DeepEqual(e, bv.expr) {
 			return bv.name
 		}
 	}
 	var buf bytes.Buffer
-	printer.Fprint(&buf, token.NewFileSet(), v)
-	base := "x" + strings.Map(func(r rune) rune {
+	printer.Fprint(&buf, token.NewFileSet(), e)
+	base := strings.Map(func(r rune) rune {
 		if '0' <= r && r <= '9' || 'A' <= r && r <= 'Z' || 'a' <= r && r <= 'z' {
 			return r
 		}
 		return -1
 	}, buf.String())
-	if len(base) > 4 {
-		base = base[:4]
+	typ := v.Type().Name()
+	if typ == "" {
+		var b bool
+		typ = strings.Map(func(r rune) rune {
+			if !b && ('0' <= r && r <= '9' || 'A' <= r && r <= 'Z' || 'a' <= r && r <= 'z') {
+				return r
+			}
+			b = true
+			return -1
+		}, buf.String())
 	}
-	i := 2
+	if len(typ) > 1 {
+		base = strings.ReplaceAll(base, typ, typ[:1])
+	}
+	if len(base) == 0 || '0' <= base[0] && base[0] <= '9' {
+		base = "x" + base
+	}
+	if len(base) > 3 {
+		base = base[:3]
+	}
+	i := 1
 	if len(base) < i {
 		i = len(base)
 	}
@@ -276,7 +293,7 @@ func (b *builder) getVarName(t, v ast.Expr) string {
 			name = base + strconv.Itoa(i-len(base))
 		}
 	}
-	bv := builderVar{name: name, typ: t, expr: v}
+	bv := builderVar{name: name, typ: t, expr: e}
 	b.vars = append(b.vars, bv)
 	return name
 }
@@ -288,6 +305,6 @@ func (b *builder) newPtrExpr(v reflect.Value, e ast.Expr) (ast.Expr, error) {
 	}
 	return &ast.UnaryExpr{
 		Op: token.AND,
-		X:  &ast.Ident{Name: b.getVarName(t, e)},
+		X:  &ast.Ident{Name: b.getVarName(v, t, e)},
 	}, nil
 }

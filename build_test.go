@@ -234,8 +234,8 @@ var testCases = []struct {
 	{
 		name: "pointer of literal",
 		src:  (func(i int) *int { return &i })(42),
-		expected: `(func(x4 int) *int {
-	return &x4
+		expected: `(func(x int) *int {
+	return &x
 })(42)`,
 	},
 	{
@@ -258,7 +258,7 @@ var testCases = []struct {
 			b: (func(i y) *y { return &i })(2),
 			c: (func(i y) *y { return &i })(1),
 		},
-		expected: `(func(xf, xb, xba z, x1, x2 y) struct {
+		expected: `(func(f, b, ba z, x, x2 y) struct {
 	x	x
 	y	y
 	z, w, u	*z
@@ -269,7 +269,7 @@ var testCases = []struct {
 		y	y
 		z, w, u	*z
 		a, b, c	*y
-	}{y: 1, z: &xf, w: &xb, u: &xba, a: &x1, b: &x2, c: &x1}
+	}{y: 1, z: &f, w: &b, u: &ba, a: &x, b: &x2, c: &x}
 })("foo", "bar", "barr", 1, 2)`,
 	},
 	{
@@ -281,8 +281,8 @@ var testCases = []struct {
 			5: (func(s string) *string { return &s })("fo"),
 			7: (func(s string) *string { return &s })("ba"),
 		},
-		expected: `(func(xf, xb, xfo, xba string) map[int]*string {
-	return map[int]*string{2: &xf, 3: &xf, 4: &xb, 5: &xfo, 7: &xba}
+		expected: `(func(f, b, fo, ba string) map[int]*string {
+	return map[int]*string{2: &f, 3: &f, 4: &b, 5: &fo, 7: &ba}
 })("foo", "bar", "fo", "ba")`,
 	},
 	{
@@ -293,8 +293,8 @@ var testCases = []struct {
 			"c":   (func(b bool) *bool { return &b })(false),
 			"":    (func(b bool) *bool { return &b })(true),
 		},
-		expected: `(func(xt, xf bool) map[string]*bool {
-	return map[string]*bool{"": &xt, "a": &xt, "c": &xf, "foo": &xf}
+		expected: `(func(t, f bool) map[string]*bool {
+	return map[string]*bool{"": &t, "a": &t, "c": &f, "foo": &f}
 })(true, false)`,
 	},
 	{
@@ -317,27 +317,27 @@ var testCases = []struct {
 			"o": (func(x interface{}) *interface{} { return &x })(nil),
 			"p": (func(x interface{}) *interface{} { return &x })(struct{}{}),
 		},
-		expected: `(func(x1 int, xi int8, xin int16, xint int32, xint1 int64, xu uint, xui uint8, xuin uint16, xuin1 uint32, xuin2 uint64, xf float32, x10 float64, xc complex64, xco complex128, xint2, xint3 interface {
+		expected: `(func(x int, i int8, i1 int16, i10 int32, i101 int64, u uint, u1 uint8, u10 uint16, u101 uint32, u102 uint64, f float32, x1 float64, c complex64, c1 complex128, in, is interface {
 }) map[string]interface {
 } {
 	return map[string]interface {
 	}{"a": interface {
-	}(&x1), "b": interface {
-	}(&xi), "c": interface {
-	}(&xin), "d": interface {
-	}(&xint), "e": interface {
-	}(&xint1), "f": interface {
-	}(&xu), "g": interface {
-	}(&xui), "h": interface {
-	}(&xuin), "i": interface {
-	}(&xuin1), "j": interface {
-	}(&xuin2), "k": interface {
-	}(&xf), "l": interface {
-	}(&x10), "m": interface {
-	}(&xc), "n": interface {
-	}(&xco), "o": interface {
-	}(&xint2), "p": interface {
-	}(&xint3)}
+	}(&x), "b": interface {
+	}(&i), "c": interface {
+	}(&i1), "d": interface {
+	}(&i10), "e": interface {
+	}(&i101), "f": interface {
+	}(&u), "g": interface {
+	}(&u1), "h": interface {
+	}(&u10), "i": interface {
+	}(&u101), "j": interface {
+	}(&u102), "k": interface {
+	}(&f), "l": interface {
+	}(&x1), "m": interface {
+	}(&c), "n": interface {
+	}(&c1), "o": interface {
+	}(&in), "p": interface {
+	}(&is)}
 })(10, int8(10), int16(10), int32(10), int64(10), uint(10), uint8(10), uint16(10), uint32(10), uint64(10), float32(10), 10.0, complex64((10+0i)), complex128((10+0i)), interface {
 }(nil), interface {
 }(struct {

@@ -196,13 +196,10 @@ func (b *builder) buildInner(v reflect.Value) (ast.Expr, error) {
 		if err != nil {
 			return nil, err
 		}
-		if x, ok := w.(*ast.BasicLit); ok {
-			t, err := buildType(v.Elem().Type())
-			if err != nil {
-				return nil, err
-			}
-			n := b.getVarName(t, x)
-			return &ast.UnaryExpr{Op: token.AND, X: &ast.Ident{Name: n}}, nil
+		if _, ok := w.(*ast.BasicLit); ok {
+			return b.newPtrExpr(v.Elem(), w)
+		} else if v.Elem().Kind() == reflect.Bool {
+			return b.newPtrExpr(v.Elem(), w)
 		}
 		return &ast.UnaryExpr{Op: token.AND, X: w}, nil
 	default:
@@ -280,4 +277,15 @@ func (b *builder) getVarName(t, v ast.Expr) string {
 	bv := builderVar{name: name, typ: t, expr: v}
 	b.vars = append(b.vars, bv)
 	return name
+}
+
+func (b *builder) newPtrExpr(v reflect.Value, e ast.Expr) (ast.Expr, error) {
+	t, err := buildType(v.Type())
+	if err != nil {
+		return nil, err
+	}
+	return &ast.UnaryExpr{
+		Op: token.AND,
+		X:  &ast.Ident{Name: b.getVarName(t, e)},
+	}, nil
 }

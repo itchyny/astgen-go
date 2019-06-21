@@ -273,7 +273,7 @@ var testCases = []struct {
 })("foo", "bar", "barr", 1, 2)`,
 	},
 	{
-		name: "map of pointers",
+		name: "map of pointers of strings",
 		src: map[int]*string{
 			3: (func(s string) *string { return &s })("foo"),
 			2: (func(s string) *string { return &s })("foo"),
@@ -284,6 +284,18 @@ var testCases = []struct {
 		expected: `(func(xf, xb, xfo, xba string) map[int]*string {
 	return map[int]*string{2: &xf, 3: &xf, 4: &xb, 5: &xfo, 7: &xba}
 })("foo", "bar", "fo", "ba")`,
+	},
+	{
+		name: "map of pointers of booleans",
+		src: map[string]*bool{
+			"foo": (func(b bool) *bool { return &b })(false),
+			"a":   (func(b bool) *bool { return &b })(true),
+			"c":   (func(b bool) *bool { return &b })(false),
+			"":    (func(b bool) *bool { return &b })(true),
+		},
+		expected: `(func(xt, xf bool) map[string]*bool {
+	return map[string]*bool{"": &xt, "a": &xt, "c": &xf, "foo": &xf}
+})(true, false)`,
 	},
 }
 

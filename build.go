@@ -196,9 +196,11 @@ func (b *builder) buildInner(v reflect.Value) (ast.Expr, error) {
 		if err != nil {
 			return nil, err
 		}
-		if _, ok := w.(*ast.BasicLit); ok {
-			return b.newPtrExpr(v.Elem(), w)
-		} else if v.Elem().Kind() == reflect.Bool {
+		switch v.Elem().Kind() {
+		case reflect.Bool, reflect.String,
+			reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
+			reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128:
 			return b.newPtrExpr(v.Elem(), w)
 		}
 		return &ast.UnaryExpr{Op: token.AND, X: w}, nil

@@ -92,6 +92,11 @@ var testCases = []struct {
 		expected: `3.14156`,
 	},
 	{
+		name:     "float64",
+		src:      3.00,
+		expected: `3.0`,
+	},
+	{
 		name:     "complex64",
 		src:      complex64(1 - 2i),
 		expected: `complex64((1-2i))`,

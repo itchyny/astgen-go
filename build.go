@@ -104,7 +104,11 @@ func (b *builder) buildInner(v reflect.Value) (ast.Expr, error) {
 	case reflect.Float32:
 		return callExpr(token.FLOAT, "float32", fmt.Sprint(v.Float())), nil
 	case reflect.Float64:
-		return &ast.BasicLit{Kind: token.FLOAT, Value: fmt.Sprint(v.Float())}, nil
+		s := fmt.Sprint(v.Float())
+		if !strings.ContainsRune(s, '.') {
+			s += ".0"
+		}
+		return &ast.BasicLit{Kind: token.FLOAT, Value: s}, nil
 	case reflect.Complex64:
 		return callExpr(token.FLOAT, "complex64", fmt.Sprint(v.Complex())), nil
 	case reflect.Complex128:

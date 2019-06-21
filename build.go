@@ -1,10 +1,13 @@
 package astgen
 
 import (
+	"bytes"
 	"fmt"
 	"go/ast"
+	"go/printer"
 	"go/token"
 	"reflect"
+	"sort"
 	"strconv"
 )
 
@@ -77,8 +80,8 @@ func build(v reflect.Value) (ast.Node, error) {
 		}
 		return &ast.CompositeLit{Type: t, Elts: exprs}, nil
 	case reflect.Map:
-		exprs := make([]ast.Expr, v.Len())
 		iter := v.MapRange()
+		exprs := make([]ast.Expr, v.Len())
 		var i int
 		for iter.Next() {
 			k, err := buildExpr(iter.Key())
@@ -92,6 +95,12 @@ func build(v reflect.Value) (ast.Node, error) {
 			exprs[i] = &ast.KeyValueExpr{Key: k, Value: v}
 			i++
 		}
+		sort.Slice(exprs, func(i, j int) bool {
+			var buf1, buf2 bytes.Buffer
+			printer.Fprint(&buf1, token.NewFileSet(), exprs[i])
+			printer.Fprint(&buf2, token.NewFileSet(), exprs[j])
+			return buf1.String() < buf2.String()
+		})
 		t, err := buildType(v.Type())
 		if err != nil {
 			return nil, err

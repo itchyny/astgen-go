@@ -161,19 +161,21 @@ var testCases = []struct {
 	},
 	{
 		name:     "map of int from string",
-		src:      map[string]int{"a": 1},
-		expected: `map[string]int{"a": 1}`,
+		src:      map[string]int{"e": 5, "b": 2, "c": 3, "d": 4, "a": 1},
+		expected: `map[string]int{"a": 1, "b": 2, "c": 3, "d": 4, "e": 5}`,
 	},
 	{
 		name:     "map of slice of string from int",
-		src:      map[int][]string{128: []string{"Hello", "world!"}},
-		expected: `map[int][]string{128: []string{"Hello", "world!"}}`,
+		src:      map[int][]string{128: []string{"Hello", "world!"}, 0: []string{}},
+		expected: `map[int][]string{0: []string{}, 128: []string{"Hello", "world!"}}`,
 	},
 	{
 		name: "map of interface from string",
-		src:  map[string]interface{}{"abcde": 128},
+		src:  map[string]interface{}{"abcde": 128, "42": []interface{}{}},
 		expected: `map[string]interface {
-}{"abcde": interface {
+}{"42": interface {
+}([]interface {
+}{}), "abcde": interface {
 }(128)}`,
 	},
 	{

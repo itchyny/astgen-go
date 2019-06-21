@@ -197,7 +197,7 @@ func (b *builder) buildInner(v reflect.Value) (ast.Expr, error) {
 			return nil, err
 		}
 		switch v.Elem().Kind() {
-		case reflect.Bool, reflect.String,
+		case reflect.Invalid, reflect.Bool, reflect.String, reflect.Interface,
 			reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
 			reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128:

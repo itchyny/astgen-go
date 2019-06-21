@@ -298,7 +298,7 @@ var testCases = []struct {
 })(true, false)`,
 	},
 	{
-		name: "map of pointers of int, uint, float, complex",
+		name: "map of pointers of int, uint, float, complex, interface",
 		src: map[string]interface{}{
 			"a": (func(x int) *int { return &x })(10),
 			"b": (func(x int8) *int8 { return &x })(10),
@@ -314,8 +314,11 @@ var testCases = []struct {
 			"l": (func(x float64) *float64 { return &x })(10),
 			"m": (func(x complex64) *complex64 { return &x })(10),
 			"n": (func(x complex128) *complex128 { return &x })(10),
+			"o": (func(x interface{}) *interface{} { return &x })(nil),
+			"p": (func(x interface{}) *interface{} { return &x })(struct{}{}),
 		},
-		expected: `(func(x1 int, xi int8, xin int16, xint int32, xint1 int64, xu uint, xui uint8, xuin uint16, xuin1 uint32, xuin2 uint64, xf float32, x10 float64, xc complex64, xco complex128) map[string]interface {
+		expected: `(func(x1 int, xi int8, xin int16, xint int32, xint1 int64, xu uint, xui uint8, xuin uint16, xuin1 uint32, xuin2 uint64, xf float32, x10 float64, xc complex64, xco complex128, xint2, xint3 interface {
+}) map[string]interface {
 } {
 	return map[string]interface {
 	}{"a": interface {
@@ -332,8 +335,13 @@ var testCases = []struct {
 	}(&xf), "l": interface {
 	}(&x10), "m": interface {
 	}(&xc), "n": interface {
-	}(&xco)}
-})(10, int8(10), int16(10), int32(10), int64(10), uint(10), uint8(10), uint16(10), uint32(10), uint64(10), float32(10), 10.0, complex64((10+0i)), complex128((10+0i)))`,
+	}(&xco), "o": interface {
+	}(&xint2), "p": interface {
+	}(&xint3)}
+})(10, int8(10), int16(10), int32(10), int64(10), uint(10), uint8(10), uint16(10), uint32(10), uint64(10), float32(10), 10.0, complex64((10+0i)), complex128((10+0i)), interface {
+}(nil), interface {
+}(struct {
+}{}))`,
 	},
 }
 

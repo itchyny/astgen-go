@@ -267,6 +267,19 @@ var testCases = []struct {
 	}{y: 1, z: &xf, w: &xb, u: &xba, a: &x1, b: &x2, c: &x1}
 })("foo", "bar", "barr", 1, 2)`,
 	},
+	{
+		name: "map of pointers",
+		src: map[int]*string{
+			3: (func(s string) *string { return &s })("foo"),
+			2: (func(s string) *string { return &s })("foo"),
+			4: (func(s string) *string { return &s })("bar"),
+			5: (func(s string) *string { return &s })("fo"),
+			7: (func(s string) *string { return &s })("ba"),
+		},
+		expected: `(func(xf string, xb string, xfo string, xba string) map[int]*string {
+	return map[int]*string{2: &xf, 3: &xf, 4: &xb, 5: &xfo, 7: &xba}
+})("foo", "bar", "fo", "ba")`,
+	},
 }
 
 type x struct {

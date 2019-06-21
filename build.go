@@ -142,27 +142,35 @@ func (b *builder) buildInner(v reflect.Value) (ast.Expr, error) {
 		}
 		return &ast.CompositeLit{Type: t, Elts: exprs}, nil
 	case reflect.Map:
-		iter := v.MapRange()
-		exprs := make([]ast.Expr, v.Len())
-		var i int
-		for iter.Next() {
-			k, err := b.buildExpr(iter.Key())
+		keys := make([]struct {
+			value reflect.Value
+			expr  ast.Expr
+			str   string
+		}, v.Len())
+		for i, key := range v.MapKeys() {
+			expr, err := b.buildExpr(key)
 			if err != nil {
 				return nil, err
 			}
-			v, err := b.buildExpr(iter.Value())
-			if err != nil {
-				return nil, err
-			}
-			exprs[i] = &ast.KeyValueExpr{Key: k, Value: v}
-			i++
+			var buf bytes.Buffer
+			printer.Fprint(&buf, token.NewFileSet(), expr)
+			keys[i] = struct {
+				value reflect.Value
+				expr  ast.Expr
+				str   string
+			}{value: key, expr: expr, str: buf.String()}
 		}
-		sort.Slice(exprs, func(i, j int) bool {
-			var buf1, buf2 bytes.Buffer
-			printer.Fprint(&buf1, token.NewFileSet(), exprs[i])
-			printer.Fprint(&buf2, token.NewFileSet(), exprs[j])
-			return buf1.String() < buf2.String()
+		sort.Slice(keys, func(i, j int) bool {
+			return keys[i].str < keys[j].str
 		})
+		exprs := make([]ast.Expr, v.Len())
+		for i, key := range keys {
+			v, err := b.buildExpr(v.MapIndex(key.value))
+			if err != nil {
+				return nil, err
+			}
+			exprs[i] = &ast.KeyValueExpr{Key: key.expr, Value: v}
+		}
 		t, err := buildType(v.Type())
 		if err != nil {
 			return nil, err

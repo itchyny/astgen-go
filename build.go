@@ -83,24 +83,10 @@ func (b *builder) buildInner(v reflect.Value) (ast.Expr, error) {
 		return &ast.Ident{Name: "false"}, nil
 	case reflect.Int:
 		return &ast.BasicLit{Kind: token.INT, Value: fmt.Sprint(v.Int())}, nil
-	case reflect.Int8:
-		return callExpr(token.INT, "int8", fmt.Sprint(v.Int())), nil
-	case reflect.Int16:
-		return callExpr(token.INT, "int16", fmt.Sprint(v.Int())), nil
-	case reflect.Int32:
-		return callExpr(token.INT, "int32", fmt.Sprint(v.Int())), nil
-	case reflect.Int64:
-		return callExpr(token.INT, "int64", fmt.Sprint(v.Int())), nil
-	case reflect.Uint:
-		return callExpr(token.INT, "uint", fmt.Sprint(v.Uint())), nil
-	case reflect.Uint8:
-		return callExpr(token.INT, "uint8", fmt.Sprint(v.Uint())), nil
-	case reflect.Uint16:
-		return callExpr(token.INT, "uint16", fmt.Sprint(v.Uint())), nil
-	case reflect.Uint32:
-		return callExpr(token.INT, "uint32", fmt.Sprint(v.Uint())), nil
-	case reflect.Uint64:
-		return callExpr(token.INT, "uint64", fmt.Sprint(v.Uint())), nil
+	case reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return callExpr(token.INT, v.Type().Name(), fmt.Sprint(v.Int())), nil
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return callExpr(token.INT, v.Type().Name(), fmt.Sprint(v.Uint())), nil
 	case reflect.Float32:
 		return callExpr(token.FLOAT, "float32", fmt.Sprint(v.Float())), nil
 	case reflect.Float64:
@@ -109,10 +95,8 @@ func (b *builder) buildInner(v reflect.Value) (ast.Expr, error) {
 			s += ".0"
 		}
 		return &ast.BasicLit{Kind: token.FLOAT, Value: s}, nil
-	case reflect.Complex64:
-		return callExpr(token.FLOAT, "complex64", fmt.Sprint(v.Complex())), nil
-	case reflect.Complex128:
-		return callExpr(token.FLOAT, "complex128", fmt.Sprint(v.Complex())), nil
+	case reflect.Complex64, reflect.Complex128:
+		return callExpr(token.FLOAT, v.Type().Name(), fmt.Sprint(v.Complex())), nil
 	case reflect.String:
 		if strings.ContainsRune(v.String(), '"') && !strings.ContainsRune(v.String(), '`') {
 			s := strings.Replace(v.String(), `"`, "", -1)

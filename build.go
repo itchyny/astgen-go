@@ -238,7 +238,40 @@ func (b *builder) getVarName(t, v ast.Expr) string {
 			return bv.name
 		}
 	}
-	name := "x" + strconv.Itoa(len(b.vars))
+	var buf bytes.Buffer
+	printer.Fprint(&buf, token.NewFileSet(), v)
+	base := "x" + strings.Map(func(r rune) rune {
+		if '0' <= r && r <= '9' || 'A' <= r && r <= 'Z' || 'a' <= r && r <= 'z' {
+			return r
+		}
+		return -1
+	}, buf.String())
+	if len(base) > 4 {
+		base = base[:4]
+	}
+	i := 2
+	if len(base) < i {
+		i = len(base)
+	}
+	name := base[:i]
+	for {
+		var found bool
+		for _, bv := range b.vars {
+			if bv.name == name {
+				found = true
+				break
+			}
+		}
+		if !found {
+			break
+		}
+		i++
+		if i <= len(base) {
+			name = base[:i]
+		} else {
+			name = base + strconv.Itoa(i-len(base))
+		}
+	}
 	bv := builderVar{name: name, typ: t, expr: v}
 	b.vars = append(b.vars, bv)
 	return name

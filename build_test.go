@@ -227,12 +227,20 @@ var testCases = []struct {
 }{name: "foo"}`,
 	},
 	{
+		name: "pointer of literal",
+		src:  (func(i int) *int { return &i })(42),
+		expected: `(func(x4 int) *int {
+	return &x4
+})(42)`,
+	},
+	{
 		name: "non struct type",
 		src: struct {
 			x x
 			y y
 			z *z
 			w *z
+			u *z
 			a *y
 			b *y
 			c *y
@@ -240,23 +248,24 @@ var testCases = []struct {
 			y: 1,
 			z: (func(s z) *z { return &s })("foo"),
 			w: (func(s z) *z { return &s })("bar"),
+			u: (func(s z) *z { return &s })("barr"),
 			a: (func(i y) *y { return &i })(1),
 			b: (func(i y) *y { return &i })(2),
 			c: (func(i y) *y { return &i })(1),
 		},
-		expected: `(func(x0 z, x1 z, x2 y, x3 y) struct {
+		expected: `(func(xf z, xb z, xba z, x1 y, x2 y) struct {
 	x	x
 	y	y
-	z, w	*z
+	z, w, u	*z
 	a, b, c	*y
 } {
 	return struct {
 		x	x
 		y	y
-		z, w	*z
+		z, w, u	*z
 		a, b, c	*y
-	}{y: 1, z: &x0, w: &x1, a: &x2, b: &x3, c: &x2}
-})("foo", "bar", 1, 2)`,
+	}{y: 1, z: &xf, w: &xb, u: &xba, a: &x1, b: &x2, c: &x1}
+})("foo", "bar", "barr", 1, 2)`,
 	},
 }
 

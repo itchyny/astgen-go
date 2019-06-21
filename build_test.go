@@ -232,14 +232,31 @@ var testCases = []struct {
 			x x
 			y y
 			z *z
-		}{y: 1, z: (func(s z) *z { return &s })("foo")},
-		expected: `struct {
+			w *z
+			a *y
+			b *y
+			c *y
+		}{
+			y: 1,
+			z: (func(s z) *z { return &s })("foo"),
+			w: (func(s z) *z { return &s })("bar"),
+			a: (func(i y) *y { return &i })(1),
+			b: (func(i y) *y { return &i })(2),
+			c: (func(i y) *y { return &i })(1),
+		},
+		expected: `(func(x0 z, x1 z, x2 y, x3 y) struct {
 	x	x
 	y	y
-	z	*z
-}{y: 1, z: (func(x z) *z {
-	return &x
-})("foo")}`,
+	z, w	*z
+	a, b, c	*y
+} {
+	return struct {
+		x	x
+		y	y
+		z, w	*z
+		a, b, c	*y
+	}{y: 1, z: &x0, w: &x1, a: &x2, b: &x3, c: &x2}
+})("foo", "bar", 1, 2)`,
 	},
 }
 

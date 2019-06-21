@@ -14,10 +14,65 @@ import (
 
 // Build ast from interface{}.
 func Build(x interface{}) (ast.Node, error) {
-	return build(reflect.ValueOf(x))
+	return (&builder{}).build(reflect.ValueOf(x))
 }
 
-func build(v reflect.Value) (ast.Node, error) {
+type builder struct {
+	vars []builderVar
+}
+
+type builderVar struct {
+	name string
+	typ  ast.Expr
+	expr ast.Expr
+}
+
+func (b *builder) build(v reflect.Value) (ast.Node, error) {
+	n, err := b.buildInner(v)
+	if err != nil {
+		return nil, err
+	}
+	if len(b.vars) == 0 {
+		return n, nil
+	}
+	t, err := buildType(v.Type())
+	if err != nil {
+		return nil, err
+	}
+	params := make([]*ast.Field, len(b.vars))
+	args := make([]ast.Expr, len(b.vars))
+	for i, bv := range b.vars {
+		params[i] = &ast.Field{
+			Names: []*ast.Ident{&ast.Ident{Name: bv.name}},
+			Type:  bv.typ,
+		}
+		args[i] = bv.expr
+	}
+	return &ast.CallExpr{
+		Fun: &ast.ParenExpr{
+			X: &ast.FuncLit{
+				Type: &ast.FuncType{
+					Params: &ast.FieldList{List: params},
+					Results: &ast.FieldList{
+						List: []*ast.Field{
+							&ast.Field{Type: t},
+						},
+					},
+				},
+				Body: &ast.BlockStmt{
+					List: []ast.Stmt{
+						&ast.ReturnStmt{
+							Results: []ast.Expr{n},
+						},
+					},
+				},
+			},
+		},
+		Args: args,
+	}, nil
+}
+
+func (b *builder) buildInner(v reflect.Value) (ast.Expr, error) {
 	switch v.Kind() {
 	case reflect.Invalid:
 		return &ast.Ident{Name: "nil"}, nil
@@ -63,7 +118,7 @@ func build(v reflect.Value) (ast.Node, error) {
 		}
 		return &ast.BasicLit{Kind: token.STRING, Value: strconv.Quote(v.String())}, nil
 	case reflect.Interface:
-		e, err := buildExpr(v.Elem())
+		e, err := b.buildExpr(v.Elem())
 		if err != nil {
 			return nil, err
 		}
@@ -75,7 +130,7 @@ func build(v reflect.Value) (ast.Node, error) {
 	case reflect.Array, reflect.Slice:
 		exprs := make([]ast.Expr, v.Len())
 		for i := 0; i < v.Len(); i++ {
-			w, err := buildExpr(v.Index(i))
+			w, err := b.buildExpr(v.Index(i))
 			if err != nil {
 				return nil, err
 			}
@@ -91,11 +146,11 @@ func build(v reflect.Value) (ast.Node, error) {
 		exprs := make([]ast.Expr, v.Len())
 		var i int
 		for iter.Next() {
-			k, err := buildExpr(iter.Key())
+			k, err := b.buildExpr(iter.Key())
 			if err != nil {
 				return nil, err
 			}
-			v, err := buildExpr(iter.Value())
+			v, err := b.buildExpr(iter.Value())
 			if err != nil {
 				return nil, err
 			}
@@ -120,7 +175,7 @@ func build(v reflect.Value) (ast.Node, error) {
 				continue
 			}
 			k := &ast.Ident{Name: v.Type().Field(i).Name}
-			v, err := buildExpr(v.Field(i))
+			v, err := b.buildExpr(v.Field(i))
 			if err != nil {
 				return nil, err
 			}
@@ -132,7 +187,7 @@ func build(v reflect.Value) (ast.Node, error) {
 		}
 		return &ast.CompositeLit{Type: t, Elts: exprs}, nil
 	case reflect.Ptr:
-		w, err := buildExpr(v.Elem())
+		w, err := b.buildExpr(v.Elem())
 		if err != nil {
 			return nil, err
 		}
@@ -141,40 +196,8 @@ func build(v reflect.Value) (ast.Node, error) {
 			if err != nil {
 				return nil, err
 			}
-			return &ast.CallExpr{
-				Fun: &ast.ParenExpr{
-					X: &ast.FuncLit{
-						Type: &ast.FuncType{
-							Params: &ast.FieldList{
-								List: []*ast.Field{
-									&ast.Field{
-										Names: []*ast.Ident{&ast.Ident{Name: "x"}},
-										Type:  t,
-									},
-								},
-							},
-							Results: &ast.FieldList{
-								List: []*ast.Field{
-									&ast.Field{Type: &ast.StarExpr{X: t}},
-								},
-							},
-						},
-						Body: &ast.BlockStmt{
-							List: []ast.Stmt{
-								&ast.ReturnStmt{
-									Results: []ast.Expr{
-										&ast.UnaryExpr{
-											Op: token.AND,
-											X:  &ast.Ident{Name: "x"},
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-				Args: []ast.Expr{x},
-			}, nil
+			n := b.getVarName(t, x)
+			return &ast.UnaryExpr{Op: token.AND, X: &ast.Ident{Name: n}}, nil
 		}
 		return &ast.UnaryExpr{Op: token.AND, X: w}, nil
 	default:
@@ -197,8 +220,8 @@ func callExpr(kind token.Token, name, value string) *ast.CallExpr {
 	}
 }
 
-func buildExpr(v reflect.Value) (ast.Expr, error) {
-	w, err := build(v)
+func (b *builder) buildExpr(v reflect.Value) (ast.Expr, error) {
+	w, err := b.buildInner(v)
 	if err != nil {
 		return nil, err
 	}
@@ -207,4 +230,16 @@ func buildExpr(v reflect.Value) (ast.Expr, error) {
 		return nil, fmt.Errorf("expected ast.Expr but got: %T", w)
 	}
 	return e, nil
+}
+
+func (b *builder) getVarName(t, v ast.Expr) string {
+	for _, bv := range b.vars {
+		if reflect.DeepEqual(t, bv.typ) && reflect.DeepEqual(v, bv.expr) {
+			return bv.name
+		}
+	}
+	name := "x" + strconv.Itoa(len(b.vars))
+	bv := builderVar{name: name, typ: t, expr: v}
+	b.vars = append(b.vars, bv)
+	return name
 }

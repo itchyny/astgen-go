@@ -258,7 +258,7 @@ var testCases = []struct {
 			b: (func(i y) *y { return &i })(2),
 			c: (func(i y) *y { return &i })(1),
 		},
-		expected: `(func(xf z, xb z, xba z, x1 y, x2 y) struct {
+		expected: `(func(xf, xb, xba z, x1, x2 y) struct {
 	x	x
 	y	y
 	z, w, u	*z
@@ -281,7 +281,7 @@ var testCases = []struct {
 			5: (func(s string) *string { return &s })("fo"),
 			7: (func(s string) *string { return &s })("ba"),
 		},
-		expected: `(func(xf string, xb string, xfo string, xba string) map[int]*string {
+		expected: `(func(xf, xb, xfo, xba string) map[int]*string {
 	return map[int]*string{2: &xf, 3: &xf, 4: &xb, 5: &xfo, 7: &xba}
 })("foo", "bar", "fo", "ba")`,
 	},

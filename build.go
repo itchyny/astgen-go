@@ -39,14 +39,23 @@ func (b *builder) build(v reflect.Value) (ast.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	params := make([]*ast.Field, len(b.vars))
+	params := make([]*ast.Field, 0, len(b.vars))
 	args := make([]ast.Expr, len(b.vars))
+	var prevType ast.Expr
 	for i, bv := range b.vars {
-		params[i] = &ast.Field{
+		args[i] = bv.expr
+		if i > 0 && reflect.DeepEqual(prevType, bv.typ) {
+			params[len(params)-1].Names = append(
+				params[len(params)-1].Names,
+				&ast.Ident{Name: bv.name},
+			)
+			continue
+		}
+		prevType = bv.typ
+		params = append(params, &ast.Field{
 			Names: []*ast.Ident{&ast.Ident{Name: bv.name}},
 			Type:  bv.typ,
-		}
-		args[i] = bv.expr
+		})
 	}
 	return &ast.CallExpr{
 		Fun: &ast.ParenExpr{

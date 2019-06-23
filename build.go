@@ -22,9 +22,10 @@ type builder struct {
 }
 
 type builderVar struct {
-	name string
-	typ  ast.Expr
-	expr ast.Expr
+	name   string
+	typ    ast.Expr
+	expr   ast.Expr
+	varptr bool
 }
 
 func (b *builder) build(v reflect.Value) (ast.Node, error) {
@@ -40,10 +41,19 @@ func (b *builder) build(v reflect.Value) (ast.Node, error) {
 		return nil, err
 	}
 	params := make([]*ast.Field, 0, len(b.vars))
-	args := make([]ast.Expr, len(b.vars))
+	args := make([]ast.Expr, 0, len(b.vars))
+	body := make([]ast.Stmt, 0, len(b.vars))
 	var prevType ast.Expr
 	for i, bv := range b.vars {
-		args[i] = bv.expr
+		if bv.varptr {
+			body = append(body, &ast.AssignStmt{
+				Tok: token.DEFINE,
+				Lhs: []ast.Expr{&ast.Ident{Name: bv.name}},
+				Rhs: []ast.Expr{bv.expr},
+			})
+			continue
+		}
+		args = append(args, bv.expr)
 		if i > 0 && reflect.DeepEqual(prevType, bv.typ) {
 			params[len(params)-1].Names = append(
 				params[len(params)-1].Names,
@@ -69,11 +79,7 @@ func (b *builder) build(v reflect.Value) (ast.Node, error) {
 					},
 				},
 				Body: &ast.BlockStmt{
-					List: []ast.Stmt{
-						&ast.ReturnStmt{
-							Results: []ast.Expr{n},
-						},
-					},
+					List: append(body, &ast.ReturnStmt{Results: []ast.Expr{n}}),
 				},
 			},
 		},
@@ -197,7 +203,7 @@ func (b *builder) buildInner(v reflect.Value) (ast.Expr, error) {
 			return nil, err
 		}
 		switch v.Elem().Kind() {
-		case reflect.Invalid, reflect.Bool, reflect.String, reflect.Interface,
+		case reflect.Invalid, reflect.Bool, reflect.String, reflect.Interface, reflect.Ptr,
 			reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
 			reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128:
@@ -293,7 +299,7 @@ func (b *builder) getVarName(v reflect.Value, t, e ast.Expr) string {
 			name = base + strconv.Itoa(i-len(base))
 		}
 	}
-	bv := builderVar{name: name, typ: t, expr: e}
+	bv := builderVar{name: name, typ: t, expr: e, varptr: isIdentPtrExpr(e)}
 	b.vars = append(b.vars, bv)
 	return name
 }
@@ -307,4 +313,14 @@ func (b *builder) newPtrExpr(v reflect.Value, e ast.Expr) (ast.Expr, error) {
 		Op: token.AND,
 		X:  &ast.Ident{Name: b.getVarName(v, t, e)},
 	}, nil
+}
+
+func isIdentPtrExpr(e ast.Expr) bool {
+	if e, ok := e.(*ast.UnaryExpr); ok {
+		if e.Op == token.AND {
+			_, ok := e.X.(*ast.Ident)
+			return ok
+		}
+	}
+	return false
 }

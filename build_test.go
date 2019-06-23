@@ -343,6 +343,28 @@ var testCases = []struct {
 }(struct {
 }{}))`,
 	},
+	{
+		name: "pointers of pointer",
+		src: map[string]interface{}{
+			"a": (func(x struct{}) ***struct{} { y := &x; z := &y; return &z })(struct{}{}),
+			"b": (func(x bool) **bool { y := &x; return &y })(false),
+			"c": (func(x string) ***string { y := &x; z := &y; return &z })(""),
+		},
+		expected: `(func(s *struct {
+}, f bool, x string) map[string]interface {
+} {
+	s1 := &s
+	f1 := &f
+	x1 := &x
+	x11 := &x1
+	return map[string]interface {
+	}{"a": interface {
+	}(&s1), "b": interface {
+	}(&f1), "c": interface {
+	}(&x11)}
+})(&struct {
+}{}, false, "")`,
+	},
 }
 
 type x struct {

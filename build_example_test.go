@@ -1,10 +1,12 @@
-package astgen
+package astgen_test
 
 import (
 	"go/printer"
 	"go/token"
 	"log"
 	"os"
+
+	"github.com/itchyny/astgen-go"
 )
 
 type X struct {
@@ -24,7 +26,7 @@ type Z struct {
 
 func ExampleBuild() {
 	x := &X{1, Y{2}, &Z{"hello", map[string]int{"x": 42}}}
-	t, err := Build(x)
+	t, err := astgen.Build(x)
 	if err != nil {
 		log.Fatal(err)
 	}

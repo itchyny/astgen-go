@@ -1,4 +1,4 @@
-package astgen
+package astgen_test
 
 import (
 	"bytes"
@@ -9,6 +9,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/itchyny/astgen-go"
 )
 
 var testCases = []struct {
@@ -378,7 +380,7 @@ type z string
 func TestBuild(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := Build(tc.src)
+			got, err := astgen.Build(tc.src)
 			assert.NoError(t, err)
 			buf := new(bytes.Buffer)
 			printer.Fprint(buf, token.NewFileSet(), got)

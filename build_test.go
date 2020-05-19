@@ -8,8 +8,6 @@ import (
 	"math"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/itchyny/astgen-go"
 )
 
@@ -381,12 +379,18 @@ func TestBuild(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			got, err := astgen.Build(tc.src)
-			assert.NoError(t, err)
+			if err != nil {
+				t.Fatalf("should not return error: %s", err)
+			}
 			buf := new(bytes.Buffer)
 			printer.Fprint(buf, token.NewFileSet(), got)
-			assert.Equal(t, tc.expected, buf.String())
+			if buf.String() != tc.expected {
+				t.Errorf("expected: %s\ngot: %s", tc.expected, buf.String())
+			}
 			_, err = parser.ParseExpr(buf.String())
-			assert.NoError(t, err)
+			if err != nil {
+				t.Fatalf("should not return error: %s", err)
+			}
 		})
 	}
 }

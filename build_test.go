@@ -135,12 +135,12 @@ var testCases = []struct {
 	},
 	{
 		name:     "array of array",
-		src:      [2][1]int{[1]int{0}, [1]int{1}},
+		src:      [2][1]int{{0}, {1}},
 		expected: `[2][1]int{[1]int{0}, [1]int{1}}`,
 	},
 	{
 		name:     "array of array of array",
-		src:      [1][1][1]int{[1][1]int{[1]int{1}}},
+		src:      [1][1][1]int{{{1}}},
 		expected: `[1][1][1]int{[1][1]int{[1]int{1}}}`,
 	},
 	{
@@ -150,7 +150,7 @@ var testCases = []struct {
 	},
 	{
 		name:     "slice of array of int",
-		src:      [][2]int{[2]int{1, 2}, [2]int{3, 4}},
+		src:      [][2]int{{1, 2}, {3, 4}},
 		expected: `[][2]int{[2]int{1, 2}, [2]int{3, 4}}`,
 	},
 	{
@@ -166,7 +166,7 @@ var testCases = []struct {
 	},
 	{
 		name:     "slice of map",
-		src:      []map[int]string{map[int]string{1: "a"}, map[int]string{2: "b"}},
+		src:      []map[int]string{{1: "a"}, {2: "b"}},
 		expected: `[]map[int]string{map[int]string{1: "a"}, map[int]string{2: "b"}}`,
 	},
 	{
@@ -176,7 +176,7 @@ var testCases = []struct {
 	},
 	{
 		name:     "map of slice of string from int",
-		src:      map[int][]string{128: []string{"Hello", "world!"}, 0: []string{}},
+		src:      map[int][]string{128: {"Hello", "world!"}, 0: {}},
 		expected: `map[int][]string{0: []string{}, 128: []string{"Hello", "world!"}}`,
 	},
 	{

@@ -372,8 +372,10 @@ type x struct {
 	ptr  *int
 }
 
-type y int
-type z string
+type (
+	y int
+	z string
+)
 
 func TestBuild(t *testing.T) {
 	for _, tc := range testCases {

@@ -239,6 +239,21 @@ var testCases = []struct {
 })(42)`,
 	},
 	{
+		// This case should be fixed to avoid identifier conflict.
+		name: "pointer of literal in struct",
+		src:  &x{ptr: (func(i int) *int { return &i })(42)},
+		expected: `(func(x int) *x {
+	return &x{ptr: &x}
+})(42)`,
+	},
+	{
+		name: "array of struct",
+		src:  [1]*x{{ptr: (func(i int) *int { return &i })(42)}},
+		expected: `(func(x int) [1]*x {
+	return [1]*x{&x{ptr: &x}}
+})(42)`,
+	},
+	{
 		name: "non struct type",
 		src: struct {
 			x x

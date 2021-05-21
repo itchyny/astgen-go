@@ -1,7 +1,6 @@
 package astgen
 
 import (
-	"bytes"
 	"fmt"
 	"go/ast"
 	"go/printer"
@@ -155,7 +154,7 @@ func (b *builder) buildInner(v reflect.Value) (ast.Expr, error) {
 			if err != nil {
 				return nil, err
 			}
-			var buf bytes.Buffer
+			var buf strings.Builder
 			printer.Fprint(&buf, token.NewFileSet(), expr)
 			keys[i] = struct {
 				value reflect.Value
@@ -248,7 +247,7 @@ func (b *builder) getVarName(v reflect.Value, t, e ast.Expr) string {
 			return bv.name
 		}
 	}
-	var buf bytes.Buffer
+	var buf strings.Builder
 	printer.Fprint(&buf, token.NewFileSet(), e)
 	base := strings.Map(func(r rune) rune {
 		if '0' <= r && r <= '9' || 'A' <= r && r <= 'Z' || 'a' <= r && r <= 'z' {

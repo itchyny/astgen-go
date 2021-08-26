@@ -1,7 +1,7 @@
 # astgen-go
 [![CI Status](https://github.com/itchyny/astgen-go/workflows/CI/badge.svg)](https://github.com/itchyny/astgen-go/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/itchyny/astgen-go)](https://goreportcard.com/report/github.com/itchyny/astgen-go)
-[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/itchyny/astgen-go/blob/main/LICENSE)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/itchyny/astgen-go/blob/main/LICENSE)
 [![pkg.go.dev](https://pkg.go.dev/badge/github.com/itchyny/astgen-go)](https://pkg.go.dev/github.com/itchyny/astgen-go)
 
 Build Go code from arbitrary value in Go.

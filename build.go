@@ -28,7 +28,7 @@ type builderVar struct {
 }
 
 func (b *builder) build(v reflect.Value) (ast.Node, error) {
-	n, err := b.buildInner(v)
+	n, err := b.buildExpr(v)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +86,7 @@ func (b *builder) build(v reflect.Value) (ast.Node, error) {
 	}, nil
 }
 
-func (b *builder) buildInner(v reflect.Value) (ast.Expr, error) {
+func (b *builder) buildExpr(v reflect.Value) (ast.Expr, error) {
 	switch v.Kind() {
 	case reflect.Invalid:
 		return &ast.Ident{Name: "nil"}, nil
@@ -227,18 +227,6 @@ func callExpr(kind token.Token, name, value string) *ast.CallExpr {
 			&ast.BasicLit{Kind: kind, Value: value},
 		},
 	}
-}
-
-func (b *builder) buildExpr(v reflect.Value) (ast.Expr, error) {
-	w, err := b.buildInner(v)
-	if err != nil {
-		return nil, err
-	}
-	e, ok := w.(ast.Expr)
-	if !ok {
-		return nil, fmt.Errorf("expected ast.Expr but got: %T", w)
-	}
-	return e, nil
 }
 
 func (b *builder) getVarName(v reflect.Value, t, e ast.Expr) string {

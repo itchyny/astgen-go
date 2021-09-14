@@ -1,3 +1,3 @@
 module github.com/itchyny/astgen-go
 
-go 1.14
+go 1.16

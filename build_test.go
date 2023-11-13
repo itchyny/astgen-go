@@ -13,7 +13,7 @@ import (
 
 var testCases = []struct {
 	name     string
-	src      interface{}
+	src      any
 	expected string
 }{
 	{
@@ -155,7 +155,7 @@ var testCases = []struct {
 	},
 	{
 		name: "slice of interface",
-		src:  []interface{}{1, "a", nil, false, true},
+		src:  []any{1, "a", nil, false, true},
 		expected: `[]interface {
 }{interface {
 }(1), interface {
@@ -181,7 +181,7 @@ var testCases = []struct {
 	},
 	{
 		name: "map of interface from string",
-		src:  map[string]interface{}{"abcde": 128, "42": []interface{}{}},
+		src:  map[string]any{"abcde": 128, "42": []any{}},
 		expected: `map[string]interface {
 }{"42": interface {
 }([]interface {
@@ -199,9 +199,9 @@ var testCases = []struct {
 		src: struct {
 			foo, bar int
 			baz, qux string
-			s        []interface{}
-			m        map[int]interface{}
-		}{foo: 1, baz: "bar", m: map[int]interface{}{1: 128}},
+			s        []any
+			m        map[int]any
+		}{foo: 1, baz: "bar", m: map[int]any{1: 128}},
 		expected: `struct {
 	foo, bar	int
 	baz, qux	string
@@ -314,7 +314,7 @@ var testCases = []struct {
 	},
 	{
 		name: "map of pointers of int, uint, float, complex, interface",
-		src: map[string]interface{}{
+		src: map[string]any{
 			"a": (func(x int) *int { return &x })(10),
 			"b": (func(x int8) *int8 { return &x })(10),
 			"c": (func(x int16) *int16 { return &x })(10),
@@ -329,8 +329,8 @@ var testCases = []struct {
 			"l": (func(x float64) *float64 { return &x })(10),
 			"m": (func(x complex64) *complex64 { return &x })(10),
 			"n": (func(x complex128) *complex128 { return &x })(10),
-			"o": (func(x interface{}) *interface{} { return &x })(nil),
-			"p": (func(x interface{}) *interface{} { return &x })(struct{}{}),
+			"o": (func(x any) *any { return &x })(nil),
+			"p": (func(x any) *any { return &x })(struct{}{}),
 		},
 		expected: `(func(x int, i int8, i1 int16, i10 int32, i101 int64, u uint, u1 uint8, u10 uint16, u101 uint32, u102 uint64, f float32, x1 float64, c complex64, c1 complex128, in, is interface {
 }) map[string]interface {
@@ -360,7 +360,7 @@ var testCases = []struct {
 	},
 	{
 		name: "pointers of pointer",
-		src: map[string]interface{}{
+		src: map[string]any{
 			"a": (func(x struct{}) ***struct{} { y := &x; z := &y; return &z })(struct{}{}),
 			"b": (func(x bool) **bool { y := &x; return &y })(false),
 			"c": (func(x string) ***string { y := &x; z := &y; return &z })(""),

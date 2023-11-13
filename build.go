@@ -11,8 +11,8 @@ import (
 	"strings"
 )
 
-// Build ast from interface{}.
-func Build(x interface{}) (ast.Node, error) {
+// Build ast from any.
+func Build(x any) (ast.Node, error) {
 	return (&builder{}).build(reflect.ValueOf(x))
 }
 

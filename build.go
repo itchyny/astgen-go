@@ -136,7 +136,7 @@ func (b *builder) buildExpr(v reflect.Value) (ast.Expr, error) {
 			if err != nil {
 				return nil, err
 			}
-			exprs[i] = w
+			exprs[i] = dropLitType(w)
 		}
 		t, err := buildType(v.Type())
 		if err != nil {
@@ -171,7 +171,10 @@ func (b *builder) buildExpr(v reflect.Value) (ast.Expr, error) {
 			if err != nil {
 				return nil, err
 			}
-			exprs[i] = &ast.KeyValueExpr{Key: key.expr, Value: v}
+			exprs[i] = &ast.KeyValueExpr{
+				Key:   key.expr,
+				Value: dropLitType(v),
+			}
 		}
 		t, err := buildType(v.Type())
 		if err != nil {
@@ -212,6 +215,21 @@ func (b *builder) buildExpr(v reflect.Value) (ast.Expr, error) {
 	default:
 		return nil, &unexpectedTypeError{v.Type()}
 	}
+}
+
+func dropLitType(v ast.Expr) ast.Expr {
+	switch v := v.(type) {
+	case *ast.CompositeLit:
+		v.Type = nil
+	case *ast.UnaryExpr:
+		if v.Op == token.AND {
+			if v, ok := v.X.(*ast.CompositeLit); ok {
+				v.Type = nil
+				return v
+			}
+		}
+	}
+	return v
 }
 
 type unexpectedTypeError struct{ t reflect.Type }

@@ -136,12 +136,12 @@ var testCases = []struct {
 	{
 		name:     "array of array",
 		src:      [2][1]int{{0}, {1}},
-		expected: `[2][1]int{[1]int{0}, [1]int{1}}`,
+		expected: `[2][1]int{{0}, {1}}`,
 	},
 	{
 		name:     "array of array of array",
 		src:      [1][1][1]int{{{1}}},
-		expected: `[1][1][1]int{[1][1]int{[1]int{1}}}`,
+		expected: `[1][1][1]int{{{1}}}`,
 	},
 	{
 		name:     "slice of int",
@@ -151,7 +151,7 @@ var testCases = []struct {
 	{
 		name:     "slice of array of int",
 		src:      [][2]int{{1, 2}, {3, 4}},
-		expected: `[][2]int{[2]int{1, 2}, [2]int{3, 4}}`,
+		expected: `[][2]int{{1, 2}, {3, 4}}`,
 	},
 	{
 		name: "slice of interface",
@@ -167,7 +167,7 @@ var testCases = []struct {
 	{
 		name:     "slice of map",
 		src:      []map[int]string{{1: "a"}, {2: "b"}},
-		expected: `[]map[int]string{map[int]string{1: "a"}, map[int]string{2: "b"}}`,
+		expected: `[]map[int]string{{1: "a"}, {2: "b"}}`,
 	},
 	{
 		name:     "map of int from string",
@@ -177,7 +177,7 @@ var testCases = []struct {
 	{
 		name:     "map of slice of string from int",
 		src:      map[int][]string{128: {"Hello", "world!"}, 0: {}},
-		expected: `map[int][]string{0: []string{}, 128: []string{"Hello", "world!"}}`,
+		expected: `map[int][]string{0: {}, 128: {"Hello", "world!"}}`,
 	},
 	{
 		name: "map of interface from string",
@@ -250,7 +250,7 @@ var testCases = []struct {
 		name: "array of struct",
 		src:  [1]*x{{ptr: (func(i int) *int { return &i })(42)}},
 		expected: `(func(x int) [1]*x {
-	return [1]*x{&x{ptr: &x}}
+	return [1]*x{{ptr: &x}}
 })(42)`,
 	},
 	{

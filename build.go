@@ -113,7 +113,7 @@ func (b *builder) buildExpr(v reflect.Value) (ast.Expr, error) {
 		return callExpr(token.FLOAT, v.Type().Name(), fmt.Sprint(v.Complex())), nil
 	case reflect.String:
 		if strings.ContainsRune(v.String(), '"') && !strings.ContainsRune(v.String(), '`') {
-			s := strings.Replace(v.String(), `"`, "", -1)
+			s := strings.ReplaceAll(v.String(), `"`, "")
 			if len(strconv.Quote(s)) == len(s)+2 { // check no escape characters
 				return &ast.BasicLit{Kind: token.STRING, Value: "`" + v.String() + "`"}, nil
 			}

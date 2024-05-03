@@ -1,11 +1,11 @@
 package astgen_test
 
 import (
-	"bytes"
 	"go/parser"
 	"go/printer"
 	"go/token"
 	"math"
+	"strings"
 	"testing"
 
 	"github.com/itchyny/astgen-go"
@@ -399,12 +399,12 @@ func TestBuild(t *testing.T) {
 			if err != nil {
 				t.Fatalf("should not return error: %s", err)
 			}
-			buf := new(bytes.Buffer)
-			printer.Fprint(buf, token.NewFileSet(), got)
-			if buf.String() != tc.expected {
-				t.Errorf("expected: %s\ngot: %s", tc.expected, buf.String())
+			var sb strings.Builder
+			printer.Fprint(&sb, token.NewFileSet(), got)
+			if sb.String() != tc.expected {
+				t.Errorf("expected: %s\ngot: %s", tc.expected, sb.String())
 			}
-			_, err = parser.ParseExpr(buf.String())
+			_, err = parser.ParseExpr(sb.String())
 			if err != nil {
 				t.Fatalf("should not return error: %s", err)
 			}

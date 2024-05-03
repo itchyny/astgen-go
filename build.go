@@ -154,13 +154,13 @@ func (b *builder) buildExpr(v reflect.Value) (ast.Expr, error) {
 			if err != nil {
 				return nil, err
 			}
-			var buf strings.Builder
-			printer.Fprint(&buf, token.NewFileSet(), expr)
+			var sb strings.Builder
+			printer.Fprint(&sb, token.NewFileSet(), expr)
 			keys[i] = struct {
 				value reflect.Value
 				expr  ast.Expr
 				str   string
-			}{value: key, expr: expr, str: buf.String()}
+			}{value: key, expr: expr, str: sb.String()}
 		}
 		sort.Slice(keys, func(i, j int) bool {
 			return keys[i].str < keys[j].str
@@ -253,14 +253,14 @@ func (b *builder) getVarName(v reflect.Value, t, e ast.Expr) string {
 			return bv.name
 		}
 	}
-	var buf strings.Builder
-	printer.Fprint(&buf, token.NewFileSet(), e)
+	var sb strings.Builder
+	printer.Fprint(&sb, token.NewFileSet(), e)
 	base := strings.Map(func(r rune) rune {
 		if '0' <= r && r <= '9' || 'A' <= r && r <= 'Z' || 'a' <= r && r <= 'z' {
 			return r
 		}
 		return -1
-	}, buf.String())
+	}, sb.String())
 	typ := v.Type().Name()
 	if typ == "" {
 		var b bool
@@ -270,7 +270,7 @@ func (b *builder) getVarName(v reflect.Value, t, e ast.Expr) string {
 			}
 			b = true
 			return -1
-		}, buf.String())
+		}, sb.String())
 	}
 	if len(typ) > 1 {
 		base = strings.ReplaceAll(base, typ, typ[:1])

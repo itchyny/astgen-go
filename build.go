@@ -6,7 +6,7 @@ import (
 	"go/printer"
 	"go/token"
 	"reflect"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -144,11 +144,12 @@ func (b *builder) buildExpr(v reflect.Value) (ast.Expr, error) {
 		}
 		return &ast.CompositeLit{Type: t, Elts: exprs}, nil
 	case reflect.Map:
-		keys := make([]struct {
+		type keyExpr struct {
 			value reflect.Value
 			expr  ast.Expr
 			str   string
-		}, v.Len())
+		}
+		keys := make([]keyExpr, v.Len())
 		for i, key := range v.MapKeys() {
 			expr, err := b.buildExpr(key)
 			if err != nil {
@@ -156,14 +157,10 @@ func (b *builder) buildExpr(v reflect.Value) (ast.Expr, error) {
 			}
 			var sb strings.Builder
 			printer.Fprint(&sb, token.NewFileSet(), expr)
-			keys[i] = struct {
-				value reflect.Value
-				expr  ast.Expr
-				str   string
-			}{value: key, expr: expr, str: sb.String()}
+			keys[i] = keyExpr{value: key, expr: expr, str: sb.String()}
 		}
-		sort.Slice(keys, func(i, j int) bool {
-			return keys[i].str < keys[j].str
+		slices.SortFunc(keys, func(k1, k2 keyExpr) int {
+			return strings.Compare(k1.str, k2.str)
 		})
 		exprs := make([]ast.Expr, v.Len())
 		for i, key := range keys {
@@ -281,24 +278,15 @@ func (b *builder) getVarName(v reflect.Value, t, e ast.Expr) string {
 	if len(base) > 3 {
 		base = base[:3]
 	}
-	i := 1
-	if len(base) < i {
-		i = len(base)
-	}
+	i := min(len(base), 1)
 	name := base[:i]
 	for {
-		var found bool
-		for _, bv := range b.vars {
-			if bv.name == name {
-				found = true
-				break
-			}
-		}
-		if !found {
+		if !slices.ContainsFunc(b.vars, func(bv builderVar) bool {
+			return bv.name == name
+		}) {
 			break
 		}
-		i++
-		if i <= len(base) {
+		if i++; i <= len(base) {
 			name = base[:i]
 		} else {
 			name = base + strconv.Itoa(i-len(base))

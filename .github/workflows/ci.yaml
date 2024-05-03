@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-    - main
+      - main
   pull_request:
 
 permissions:
@@ -12,15 +12,20 @@ permissions:
 jobs:
   test:
     name: Test
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        go: [1.22.x, 1.21.x]
+      fail-fast: false
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Setup Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: 1.x
-    - name: Test
-      run: make test
-    - name: Lint
-      run: make lint
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+      - name: Test
+        run: make test
+      - name: Lint
+        run: make lint

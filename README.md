@@ -1,5 +1,5 @@
 # astgen-go
-[![CI Status](https://github.com/itchyny/astgen-go/workflows/CI/badge.svg)](https://github.com/itchyny/astgen-go/actions)
+[![CI Status](https://github.com/itchyny/astgen-go/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/itchyny/astgen-go/actions?query=branch:main)
 [![Go Report Card](https://goreportcard.com/badge/github.com/itchyny/astgen-go)](https://goreportcard.com/report/github.com/itchyny/astgen-go)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/itchyny/astgen-go/blob/main/LICENSE)
 [![pkg.go.dev](https://pkg.go.dev/badge/github.com/itchyny/astgen-go)](https://pkg.go.dev/github.com/itchyny/astgen-go)
@@ -54,7 +54,7 @@ func main() {
 Report bug at [Issues・itchyny/astgen-go - GitHub](https://github.com/itchyny/astgen-go/issues).
 
 ## Author
-itchyny (https://github.com/itchyny)
+itchyny (<https://github.com/itchyny>)
 
 ## License
 This software is released under the MIT License, see LICENSE.
